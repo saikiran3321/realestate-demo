@@ -1,0 +1,3 @@
+ALTER TABLE public.properties ADD COLUMN cutoff_basis TEXT NOT NULL DEFAULT 'per_unit';
+COMMENT ON COLUMN public.properties.cutoff_basis IS 'How the cutoff value is interpreted: per_unit (fixed amount or % of price per unit) or per_sqft (rupees per square foot, multiplied by sqft).';
+ALTER TABLE public.properties ADD CONSTRAINT properties_cutoff_basis_check CHECK (cutoff_basis IN ('per_unit','per_sqft')) NOT VALID;

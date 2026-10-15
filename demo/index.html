@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RealEstate CRM</title>
+<style>
+:root{
+  --bg:#f5f6f8;--panel:#fff;--ink:#1c2230;--muted:#6b7385;--line:#e4e7ee;
+  --brand:#0f766e;--brand-ink:#fff;--brand-soft:#d9f2ee;
+  --new:#3b82f6;--contacted:#8b5cf6;--viewing:#f59e0b;--offer:#ec4899;--won:#16a34a;--lost:#9ca3af;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1319;--panel:#171c25;--ink:#e8ebf2;--muted:#8d96a8;--line:#262d3a;--brand:#2dd4bf;--brand-ink:#04211e;--brand-soft:#12312e;--shadow:none}
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+aside{width:220px;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.logo{font-weight:700;font-size:18px;padding:4px 10px 16px;display:flex;gap:8px;align-items:center}
+.logo i{width:26px;height:26px;border-radius:7px;background:var(--brand);display:inline-block}
+nav button{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:8px;color:var(--muted);width:calc(100% - 20px)}
+nav button:hover{background:var(--bg)}
+nav button.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.side-foot{margin-top:auto;font-size:12px;color:var(--muted);padding:10px}
+.side-foot button{margin-top:6px}
+main{flex:1;min-width:0;padding:22px 28px}
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+header.top h1{font-size:22px;margin:0;flex:1}
+input,select,textarea{font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:-1px}
+.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:8px}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:600}
+.btn.sm{padding:4px 10px;font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px}
+.grid{display:grid;gap:16px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:16px}
+.kpi .v{font-size:26px;font-weight:700;margin-top:4px}
+.kpi .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.kpi .d{font-size:12px;color:var(--won)}
+.two{grid-template-columns:2fr 1fr}
+@media(max-width:1000px){.two{grid-template-columns:1fr}}
+h3{margin:0 0 12px;font-size:15px}
+/* kanban */
+.board{display:grid;grid-template-columns:repeat(6,minmax(210px,1fr));gap:12px;overflow-x:auto;padding-bottom:10px}
+.col{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:300px}
+.col.over{outline:2px dashed var(--brand)}
+.col h4{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center}
+.col h4 span.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.col h4 small{color:var(--muted);font-weight:500}
+.lead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;cursor:grab;box-shadow:var(--shadow)}
+.lead:hover{border-color:var(--brand)}
+.lead b{display:block}
+.lead .m{color:var(--muted);font-size:12px}
+.lead .b{margin-top:6px;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--brand-soft);color:var(--brand);margin-right:4px}
+/* properties */
+.props{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.prop{padding:0;overflow:hidden;cursor:pointer}
+.prop .img{height:140px;display:flex;align-items:flex-end;padding:10px;color:#fff;font-weight:700;font-size:20px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.prop .bd{padding:12px 14px}
+.prop .bd .m{color:var(--muted);font-size:12px}
+.status{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600}
+.s-Active{background:#dcfce7;color:#166534}.s-Pending{background:#fef3c7;color:#92400e}.s-Sold{background:#e5e7eb;color:#374151}
+/* table */
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+tr.click:hover{background:var(--bg);cursor:pointer}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:inline-grid;place-items:center;font-weight:700;font-size:12px;margin-right:8px;vertical-align:middle}
+/* tasks */
+.task{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.task.done span{text-decoration:line-through;color:var(--muted)}
+.task small{margin-left:auto;color:var(--muted)}
+.task small.over{color:#dc2626;font-weight:600}
+/* funnel bars */
+.bar{display:flex;align-items:center;gap:10px;margin:8px 0}
+.bar .n{width:90px;color:var(--muted)}
+.bar .t{flex:1;background:var(--bg);border-radius:6px;height:18px;overflow:hidden}
+.bar .t i{display:block;height:100%;border-radius:6px}
+/* modal */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--ink);padding:22px;width:min(480px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,14,22,.5)}
+dialog label{display:block;margin:10px 0 4px;font-size:12px;color:var(--muted)}
+dialog input,dialog select,dialog textarea{width:100%}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.timeline{border-left:2px solid var(--line);margin:12px 0 0 6px;padding-left:14px}
+.timeline div{margin-bottom:10px;font-size:13px}.timeline small{color:var(--muted);display:block}
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+nav .grp{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:14px 10px 4px}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--line);margin:2px 4px 2px 0;font-size:12px}
+.slot{padding:8px 0;border-top:1px solid var(--line)}.slot small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.vacant{color:var(--muted);font-style:italic;font-size:12px}
+.checks label{display:flex;gap:8px;align-items:center;margin:4px 0;color:var(--ink);font-size:13px}.checks input{width:auto}
+.acts{white-space:nowrap;text-align:right}
+@media(max-width:720px){body{flex-direction:column}aside{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:8px}.logo,.side-foot{display:none}nav{display:flex}nav button{width:auto;white-space:nowrap}main{padding:16px}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="logo"><i></i>RealEstate CRM</div>
+  <nav id="nav"></nav>
+  <div class="side-foot">Demo data · saved in your browser<br><button class="btn sm" id="reset">Reset demo data</button></div>
+</aside>
+<main id="view"></main>
+<dialog id="dlg"></dialog>
+
+<script>
+const STAGES=[["New","var(--new)"],["Contacted","var(--contacted)"],["Viewing","var(--viewing)"],["Offer","var(--offer)"],["Won","var(--won)"],["Lost","var(--lost)"]];
+const fmt=n=>"$"+Number(n).toLocaleString();
+const day=d=>{const x=new Date();x.setDate(x.getDate()+d);return x.toISOString().slice(0,10)};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const initials=n=>n.split(" ").map(s=>s[0]).slice(0,2).join("");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function seed(){
+  const props=[
+    ["12 Maple Grove","Austin, TX",725000,4,3,2450,"House","Active",["#0f766e","#14b8a6"]],
+    ["88 Harbor View #14B","Seattle, WA",980000,2,2,1320,"Condo","Active",["#1d4ed8","#60a5fa"]],
+    ["301 Oakridge Dr","Denver, CO",610000,3,2,1980,"House","Pending",["#b45309","#fbbf24"]],
+    ["5 Willow Lane","Portland, OR",545000,3,2.5,1760,"Townhome","Active",["#7c3aed","#c4b5fd"]],
+    ["1420 Sunset Blvd","Los Angeles, CA",1450000,5,4,3600,"House","Active",["#be123c","#fb7185"]],
+    ["27 Birch Court","Nashville, TN",399000,2,1,1100,"Condo","Sold",["#374151","#9ca3af"]],
+    ["990 Lakeshore Ave","Chicago, IL",840000,3,3,2100,"Condo","Pending",["#0e7490","#67e8f9"]],
+    ["64 Cedar Ridge","Phoenix, AZ",475000,4,2,2200,"House","Active",["#15803d","#86efac"]],
+    ["Plot 45, Green Meadows","Hyderabad, TG",320000,0,0,2400,"Plot","Active",["#4d7c0f","#bef264"]],
+    ["Orbit Tower, Unit 7","Bengaluru, KA",1100000,0,2,3000,"Commercial","Active",["#475569","#cbd5e1"]],
+    ["Farm 12, Riverbend","Pune, MH",280000,0,0,43560,"Farm","Pending",["#a16207","#fde047"]],
+  ].map(([addr,city,price,bd,ba,sqft,type,status,g])=>({id:uid(),addr,city,price,bd,ba,sqft,type,status,g}));
+  const propCats=["Open plot","Villa","Apartment","Farmland","Commercial"].map(name=>({id:uid(),name}));
+  const tm={House:"Villa",Townhome:"Villa",Condo:"Apartment",Plot:"Open plot",Farm:"Farmland",Commercial:"Commercial"};
+  props.forEach(p=>p.cat=propCats.find(c=>c.name===tm[p.type]).id);
+  const empCats=["Senior Director","Director","Deputy Director","General Manager","Deputy General Manager","Agent"].map(name=>({id:uid(),name}));
+  const names=["Rohan Mehta","Anita Sharma","Vikram Rao","Kavya Reddy","Suresh Iyer","Neha Gupta","Arjun Verma","Pooja Nair","Karthik Menon","Divya Joshi","Imran Khan","Sneha Kulkarni","Rahul Bose","Meera Das","Aditya Singh","Lakshmi Pillai"];
+  const lvl=[0,1,2,3,4,5,5,5];
+  const employees=names.map((name,i)=>({id:uid(),name,cat:empCats[lvl[i%8]].id,phone:"+91 98"+String(10000000+i*7919).slice(0,8),email:name.toLowerCase().replace(" ",".")+"@realestatecrm.com"}));
+  const teams=["Team Alpha","Team Beta"].map((name,t)=>({id:uid(),name,members:employees.slice(t*8,t*8+8).map(e=>e.id)}));
+  return {props,propCats,empCats,employees,teams};
+}
+let db;try{db=JSON.parse(localStorage.getItem("hearth")||"null")}catch(e){}
+db=db||seed();
+if(!db.propCats){const s=seed();Object.assign(db,{propCats:s.propCats,empCats:s.empCats,employees:s.employees,teams:s.teams});
+  const tm={House:"Villa",Townhome:"Villa",Condo:"Apartment"};db.props.forEach(p=>p.cat=db.propCats.find(c=>c.name===(tm[p.type]||"Villa")).id)}
+const save=()=>{try{localStorage.setItem("hearth",JSON.stringify(db))}catch(e){}};
+const propName=id=>db.props.find(p=>p.id===id)?.addr||"—";
+
+let route="propcats";
+const NAV=[["grp","Property"],["propcats","🏷️","Property category"],["properties","🏡","Properties"],
+  ["grp","People"],["empcats","🎖️","Employee category"],["employees","🧑‍💼","Employees"],["teams","🤝","Team management"]];
+function renderNav(){document.getElementById("nav").innerHTML=NAV.map(([k,i,l])=>k==="grp"?`<div class="grp">${i}</div>`:`<button data-r="${k}" class="${k===route?"on":""}">${i} ${l}</button>`).join("")}
+document.getElementById("nav").onclick=e=>{const b=e.target.closest("button");if(b){route=b.dataset.r;render()}};
+document.getElementById("reset").onclick=()=>{if(confirm("Reset all demo data?")){db=seed();save();render()}};
+
+function render(){renderNav();const v=document.getElementById("view");v.innerHTML=({properties,propcats,empcats,employees,teams})[route]();(wire[route]||(()=>{}))()}
+
+/* ---------- Properties ---------- */
+let pf={q:"",status:"All",cat:"All"};
+function properties(){
+  const list=db.props.filter(p=>(pf.status==="All"||p.status===pf.status)&&(pf.cat==="All"||p.cat===pf.cat)&&(p.addr+p.city).toLowerCase().includes(pf.q.toLowerCase()));
+  return `<header class="top"><h1>Properties</h1><button class="btn primary" onclick="propForm()">+ Add property</button></header>
+  <div class="toolbar"><input id="pq" placeholder="Search address or city…" value="${esc(pf.q)}"><select id="pc"><option value="All">All categories</option>${db.propCats.map(c=>`<option value="${c.id}" ${c.id===pf.cat?"selected":""}>${esc(c.name)}</option>`).join("")}</select><select id="ps">${["All","Active","Pending","Sold"].map(s=>`<option ${s===pf.status?"selected":""}>${s}</option>`).join("")}</select></div>
+  <div class="grid props">${list.map(p=>`<div class="card prop" onclick="propForm('${p.id}')"><div class="img" style="background:linear-gradient(135deg,${p.g[0]},${p.g[1]})">${fmt(p.price)}</div>
+  <div class="bd"><div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(p.addr)}</b><span class="status s-${p.status}">${p.status}</span></div>
+  <div class="m">${esc(p.city)}</div><div class="m" style="margin-top:6px">${p.bd} bd · ${p.ba} ba · ${p.sqft.toLocaleString()} sqft</div><div style="margin-top:6px"><span class="tag">${esc(catName(p.cat))}</span></div></div></div>`).join("")||"<p>No properties match.</p>"}</div>`;
+}
+function wireProps(){
+  const q=document.getElementById("pq");q.oninput=e=>{pf.q=e.target.value;const pos=e.target.selectionStart;render();const n=document.getElementById("pq");n.focus();n.setSelectionRange(pos,pos)};
+  document.getElementById("pc").onchange=e=>{pf.cat=e.target.value;render()};
+  document.getElementById("ps").onchange=e=>{pf.status=e.target.value;render()};
+}
+
+/* ---------- Helpers ---------- */
+const catName=id=>db.propCats.find(c=>c.id===id)?.name||"—";
+const ecatName=id=>db.empCats.find(c=>c.id===id)?.name||"—";
+const teamOf=id=>db.teams.find(t=>t.members.includes(id));
+function nameForm(title,val,cb){
+  dlg.innerHTML=`<form method="dialog" id="nf"><h3>${title}</h3><label>Name</label><input name="name" required value="${esc(val)}"><div class="actions"><button type="button" class="btn" onclick="dlg.close()">Cancel</button><button class="btn primary" value="ok">Save</button></div></form>`;
+  dlg.showModal();document.getElementById("nf").onsubmit=e=>{cb(new FormData(e.target).get("name").trim());save();render()};
+}
+const actions=(edit,del)=>`<td class="acts"><button class="btn sm" onclick="${edit}">Edit</button> <button class="btn sm" style="color:#dc2626" onclick="${del}">Delete</button></td>`;
+
+/* ---------- Property category ---------- */
+function propcats(){
+  return `<header class="top"><h1>Property categories</h1><button class="btn primary" onclick="editPropCat()">+ Add category</button></header>
+  <div class="card"><p style="margin-top:0;color:var(--muted)">Categories used to classify every property (open plot, villa, apartment…).</p><table><thead><tr><th>#</th><th>Category</th><th></th></tr></thead><tbody>
+  ${db.propCats.map((c,i)=>`<tr><td>${i+1}</td><td><b>${esc(c.name)}</b></td>${actions(`editPropCat('${c.id}')`,`delPropCat('${c.id}')`)}</tr>`).join("")}</tbody></table></div>`;
+}
+function editPropCat(id){const c=db.propCats.find(x=>x.id===id);nameForm(id?"Edit category":"Add property category",c?.name||"",n=>{if(c)c.name=n;else db.propCats.push({id:uid(),name:n})})}
+function delPropCat(id){const n=db.props.filter(p=>p.cat===id).length;if(n)return alert(`Can't delete: ${n} propert${n>1?"ies use":"y uses"} this category. Reassign them first.`);
+  if(confirm("Delete this category?")){db.propCats=db.propCats.filter(c=>c.id!==id);save();render()}}
+
+/* ---------- Employee category ---------- */
+function empcats(){
+  return `<header class="top"><h1>Employee categories</h1><button class="btn primary" onclick="editEmpCat()">+ Add category</button></header>
+  <div class="card"><p style="margin-top:0;color:var(--muted)">Designations in seniority order (top = most senior). Used in Employees and Team management.</p><table><thead><tr><th>Rank</th><th>Designation</th><th>Order</th><th></th></tr></thead><tbody>
+  ${db.empCats.map((c,i)=>`<tr><td>${i+1}</td><td><b>${esc(c.name)}</b></td><td><button class="btn sm" ${i?"":"disabled"} onclick="moveEmpCat(${i},-1)">↑</button> <button class="btn sm" ${i<db.empCats.length-1?"":"disabled"} onclick="moveEmpCat(${i},1)">↓</button></td>${actions(`editEmpCat('${c.id}')`,`delEmpCat('${c.id}')`)}</tr>`).join("")}</tbody></table></div>`;
+}
+function editEmpCat(id){const c=db.empCats.find(x=>x.id===id);nameForm(id?"Edit designation":"Add employee category",c?.name||"",n=>{if(c)c.name=n;else db.empCats.push({id:uid(),name:n})})}
+function moveEmpCat(i,d){const a=db.empCats;[a[i],a[i+d]]=[a[i+d],a[i]];save();render()}
+function delEmpCat(id){const n=db.employees.filter(e=>e.cat===id).length;if(n)return alert(`Can't delete: ${n} employee(s) have this designation.`);
+  if(confirm("Delete this category?")){db.empCats=db.empCats.filter(c=>c.id!==id);save();render()}}
+
+/* ---------- Employees ---------- */
+let ef={q:"",cat:"All"};
+function employees(){
+  const rank=id=>db.empCats.findIndex(c=>c.id===id);
+  const list=db.employees.filter(e=>(ef.cat==="All"||e.cat===ef.cat)&&(e.name+e.email+e.phone).toLowerCase().includes(ef.q.toLowerCase())).sort((a,b)=>rank(a.cat)-rank(b.cat)||a.name.localeCompare(b.name));
+  return `<header class="top"><h1>Employees</h1><button class="btn primary" onclick="empForm()">+ Add employee</button></header>
+  <div class="toolbar"><input id="eq" placeholder="Search name, phone, email…" value="${esc(ef.q)}"><select id="ec"><option value="All">All categories</option>${db.empCats.map(c=>`<option value="${c.id}" ${c.id===ef.cat?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+  <div class="card"><table><thead><tr><th>Name</th><th>Category</th><th>Team</th><th>Phone</th><th>Email</th><th></th></tr></thead><tbody>
+  ${list.map(e=>`<tr><td><span class="avatar">${initials(e.name)}</span>${esc(e.name)}</td><td>${esc(ecatName(e.cat))}</td><td>${esc(teamOf(e.id)?.name||"Unassigned")}</td><td>${esc(e.phone)}</td><td>${esc(e.email)}</td>${actions(`empForm('${e.id}')`,`delEmp('${e.id}')`)}</tr>`).join("")||`<tr><td colspan="6">No employees match.</td></tr>`}</tbody></table></div>`;
+}
+function wireEmps(){
+  document.getElementById("eq").oninput=e=>{ef.q=e.target.value;const p=e.target.selectionStart;render();const n=document.getElementById("eq");n.focus();n.setSelectionRange(p,p)};
+  document.getElementById("ec").onchange=e=>{ef.cat=e.target.value;render()};
+}
+function empForm(id){
+  const e=db.employees.find(x=>x.id===id)||{name:"",cat:db.empCats[db.empCats.length-1]?.id,phone:"",email:""};
+  const cur=id?teamOf(id)?.id:"";
+  dlg.innerHTML=`<form method="dialog" id="ef"><h3>${id?"Edit employee":"Add employee"}</h3>
+  <label>Full name</label><input name="name" required value="${esc(e.name)}">
+  <label>Category</label><select name="cat">${db.empCats.map(c=>`<option value="${c.id}" ${c.id===e.cat?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+  <div class="row"><div><label>Phone</label><input name="phone" value="${esc(e.phone)}"></div><div><label>Email</label><input name="email" type="email" value="${esc(e.email)}"></div></div>
+  <label>Team</label><select name="team"><option value="">Unassigned</option>${db.teams.map(t=>`<option value="${t.id}" ${t.id===cur?"selected":""}>${esc(t.name)}</option>`).join("")}</select>
+  <div class="actions"><button type="button" class="btn" onclick="dlg.close()">Cancel</button><button class="btn primary" value="ok">Save</button></div></form>`;
+  dlg.showModal();
+  document.getElementById("ef").onsubmit=ev=>{const f=new FormData(ev.target);const o=id?e:{id:uid()};
+    Object.assign(o,{name:f.get("name"),cat:f.get("cat"),phone:f.get("phone"),email:f.get("email")});if(!id)db.employees.push(o);
+    db.teams.forEach(t=>t.members=t.members.filter(m=>m!==o.id));const t=db.teams.find(t=>t.id===f.get("team"));if(t)t.members.push(o.id);save();render()};
+}
+function delEmp(id){if(confirm("Delete this employee?")){db.employees=db.employees.filter(e=>e.id!==id);db.teams.forEach(t=>t.members=t.members.filter(m=>m!==id));save();render()}}
+
+/* ---------- Team management ---------- */
+function teams(){
+  return `<header class="top"><h1>Team management</h1><button class="btn primary" onclick="teamForm()">+ New team</button></header>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))">${db.teams.map(t=>`<div class="card"><div style="display:flex;align-items:center;gap:8px"><h3 style="margin:0;flex:1">${esc(t.name)}</h3><small style="color:var(--muted)">${t.members.length} members</small><button class="btn sm" onclick="teamForm('${t.id}')">Manage</button><button class="btn sm" style="color:#dc2626" onclick="delTeam('${t.id}')">Delete</button></div>
+  <div style="margin-top:10px">${db.empCats.map(c=>{const m=t.members.map(id=>db.employees.find(e=>e.id===id)).filter(e=>e&&e.cat===c.id);
+    return `<div class="slot"><small>${esc(c.name)}${m.length>1?` (${m.length})`:""}</small>${m.map(e=>`<span class="chip" title="${esc(e.phone)}">${esc(e.name)}</span>`).join("")||`<span class="vacant">Vacant</span>`}</div>`}).join("")}</div></div>`).join("")||"<p>No teams yet.</p>"}</div>`;
+}
+function teamForm(id){
+  const t=db.teams.find(x=>x.id===id)||{name:"",members:[]};
+  dlg.innerHTML=`<form method="dialog" id="tf2"><h3>${id?"Manage team":"New team"}</h3><label>Team name</label><input name="name" required value="${esc(t.name)}">
+  <div style="max-height:50vh;overflow:auto">${db.empCats.map(c=>{const es=db.employees.filter(e=>e.cat===c.id);return `<label style="margin-top:14px"><b>${esc(c.name)}</b></label><div class="checks">${es.map(e=>{const o=teamOf(e.id);const other=o&&o.id!==id;
+    return `<label><input type="checkbox" name="m" value="${e.id}" ${t.members.includes(e.id)?"checked":""}>${esc(e.name)}${other?` <small style="color:var(--muted)">(in ${esc(o.name)} – will move)</small>`:""}</label>`}).join("")||`<span class="vacant">No employees in this category</span>`}</div>`}).join("")}</div>
+  <div class="actions"><button type="button" class="btn" onclick="dlg.close()">Cancel</button><button class="btn primary" value="ok">Save</button></div></form>`;
+  dlg.showModal();
+  document.getElementById("tf2").onsubmit=ev=>{const f=new FormData(ev.target);const o=id?t:{id:uid()};const m=f.getAll("m");
+    o.name=f.get("name");o.members=m;if(!id)db.teams.push(o);db.teams.forEach(x=>{if(x!==o)x.members=x.members.filter(i=>!m.includes(i))});save();render()};
+}
+function delTeam(id){if(confirm("Delete this team? Members become unassigned.")){db.teams=db.teams.filter(t=>t.id!==id);save();render()}}
+
+const wire={properties:wireProps,employees:wireEmps};
+
+/* ---------- Modals ---------- */
+const dlg=document.getElementById("dlg");
+function propForm(id){
+  const p=db.props.find(x=>x.id===id)||{addr:"",city:"",price:500000,bd:3,ba:2,sqft:1800,cat:db.propCats[0].id,status:"Active",g:["#0f766e","#14b8a6"]};
+  dlg.innerHTML=`<form method="dialog" id="pf"><h3>${id?"Edit property":"Add property"}</h3>
+  <label>Address</label><input name="addr" required value="${esc(p.addr)}">
+  <label>City</label><input name="city" required value="${esc(p.city)}">
+  <div class="row"><div><label>Price ($)</label><input name="price" type="number" value="${p.price}"></div><div><label>Sqft</label><input name="sqft" type="number" value="${p.sqft}"></div></div>
+  <div class="row"><div><label>Beds</label><input name="bd" type="number" value="${p.bd}"></div><div><label>Baths</label><input name="ba" type="number" step=".5" value="${p.ba}"></div></div>
+  <div class="row"><div><label>Category</label><select name="cat">${db.propCats.map(c=>`<option value="${c.id}" ${c.id===p.cat?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+  <div><label>Status</label><select name="status">${["Active","Pending","Sold"].map(s=>`<option ${s===p.status?"selected":""}>${s}</option>`).join("")}</select></div></div>
+  <div class="actions"><button type="button" class="btn" onclick="dlg.close()">Cancel</button><button class="btn primary" value="ok">Save</button></div></form>`;
+  dlg.showModal();
+  document.getElementById("pf").onsubmit=e=>{const f=new FormData(e.target);const o=id?p:{id:uid(),g:p.g};
+    Object.assign(o,{addr:f.get("addr"),city:f.get("city"),price:+f.get("price"),sqft:+f.get("sqft"),bd:+f.get("bd"),ba:+f.get("ba"),cat:f.get("cat"),status:f.get("status")});
+    if(!id)db.props.push(o);save();render()};
+}
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+render();
+</script>
+</body>
+</html>
