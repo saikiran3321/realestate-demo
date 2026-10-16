@@ -5,7 +5,13 @@ import type { Database } from '@/integrations/supabase/types';
 export const getCRM = createServerFn({ method: 'GET' }).handler(async () => {
   const url = process.env['SUPABASE_URL'];
   const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
-  if (!url || !key) throw new Error('The workspace connection is unavailable.');
+  if (!url || !key) {
+    console.error('[getCRM] Missing server Supabase configuration', {
+      hasSupabaseUrl: Boolean(url),
+      hasPublishableKey: Boolean(key),
+    });
+    throw new Error('The workspace connection is unavailable.');
+  }
   const client = createClient<Database>(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { fetch: (input, init) => {
@@ -23,6 +29,23 @@ export const getCRM = createServerFn({ method: 'GET' }).handler(async () => {
     client.from('teams').select('*').order('name'),
     client.from('sales').select('*').order('sale_date', { ascending: false }),
   ]);
-  for (const result of [pc,p,ec,e,t,s]) if (result.error) throw new Error('Your workspace could not be loaded. Please try again.');
+  const tables = [
+    ['property_categories', pc],
+    ['properties', p],
+    ['employee_categories', ec],
+    ['employees', e],
+    ['teams', t],
+    ['sales', s],
+  ] as const;
+  for (const [table, result] of tables) {
+    if (result.error) {
+      console.error('[getCRM] Supabase query failed', {
+        table,
+        code: result.error.code,
+        message: result.error.message,
+      });
+      throw new Error('Your workspace could not be loaded. Please try again.');
+    }
+  }
   return { propertyCategories: pc.data ?? [], properties: p.data ?? [], employeeCategories: ec.data ?? [], employees: e.data ?? [], teams: t.data ?? [], sales: s.data ?? [] };
 });
